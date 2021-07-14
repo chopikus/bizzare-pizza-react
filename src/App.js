@@ -7,16 +7,17 @@ import React from "react";
 import Login from "./login";
 import { CssBaseline } from "@material-ui/core";
 function App() {
-  return (
-    <Router>
-      <CssBaseline />
-      <Switch>
-        <Route path="/login">
-          <Login />
-        </Route>
-      </Switch>
-    </Router>
-  );
+  return (<Router>
+    <CssBaseline />
+    <Switch>
+      <Route path="/login">
+        <Login/>
+      </Route>
+      <Route path="/menu">
+        Hello from menu!!!
+      </Route>
+    </Switch>
+  </Router>);
 }
 
 export default App;

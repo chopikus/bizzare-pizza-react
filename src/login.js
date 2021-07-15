@@ -19,6 +19,8 @@ const States = {
 
 const REQUEST_ERROR_MESSAGE = "Не удалось отправить запрос. Попробуйте ещё раз!";
 const SECRET_ERROR_MESSAGE = "Произошла ошибка. Проверьте правильность кода!";
+const NETWORK_ERROR = "Не удалось отправить запрос. Проверьте соединение с интернетом и перезагрузите страницу.";
+
 const makeStyle = makeStyles(theme => ({
     root: {
         minHeight: '100vh',
@@ -40,6 +42,33 @@ function Login(props) {
     const [snackBarMessage, setSnackBarMessage] = useState('');
     const [snackBarSeverity, setSnackBarSeverity] = useState('');
 
+    function getLogoSrc()
+    {
+        if (loginState===States.WELCOME)
+            return "logo.png";
+        if (loginState===States.ENTER_CODE || loginState===States.ENTER_CODE_WITH_NAME)
+            return "login_confirmation.png";
+        return "";
+    }
+
+    function getSubtitle()
+    {
+        if (loginState===States.WELCOME)
+            return "Для продолжения введите номер телефона.";
+        if (loginState===States.ENTER_CODE_WITH_NAME || loginState==States.ENTER_CODE)
+            return "Для подтверждения введите код, присланный Вам по SMS."
+        return "";
+    }
+    
+    function getTitle()
+    {
+        if (loginState===States.WELCOME)
+            return "Bizzare Pizza";
+        if (loginState===States.ENTER_CODE_WITH_NAME || loginState==States.ENTER_CODE)
+            return "Подтверждение"
+        return "";
+    }
+
     function resetTextFields()
     {
         document.getElementById("text-field-1").value = "";
@@ -60,7 +89,13 @@ function Login(props) {
                 "secret": localStorage['secret']})
             .subscribe({
                 next: (result) => {
-                    if (result.status.response !== 200) 
+                    if (result.status.response >= 999){
+                        setLoginState(States.LOADING);
+                        setSnackBarMessage(NETWORK_ERROR);
+                        setSnackBarSeverity("error");
+                        setSnackBarOpened(true);
+                    }
+                    else if (result.status.response !== 200) 
                         setLoginState(States.WELCOME);
                     else
                         setLoginState(States.ACCESS_GRANTED);
@@ -168,12 +203,12 @@ function Login(props) {
             alignItems="center"
             className={myStyle.root}
         >
-            <Box className={myStyle.logo} width={150} height={150} component="img" src="logo.png" />
+            <Box className={myStyle.logo} width={150} height={150} component="img" src={getLogoSrc()} />
             <Box>
-                <Typography variant="h3" align="center">Bizzare Pizza</Typography>
+                <Typography variant="h3" align="center">{getTitle()}</Typography>
             </Box>
             <Box my={1.5}>
-                <Typography variant="body1" align="center">Для продолжения введите номер телефона.</Typography>
+                <Typography variant="body1" align="center">{getSubtitle()}</Typography>
             </Box>
             <TextField
                 id="text-field-1"
@@ -191,11 +226,6 @@ function Login(props) {
                     Продолжить
                 </Button>
             </Box> {/* do not show button when loading :|*/}
-            <Snackbar open={snackBarOpened} autoHideDuration={6000} onClose={setSnackBarOpened.bind(this, false)}>
-                <Alert onClose={setSnackBarOpened.bind(this, false)} severity={snackBarSeverity}>
-                    {snackBarMessage}
-                </Alert>
-            </Snackbar> {/*showing snackbar for various kinds of errors*/}
         </Box>
         <Box mt={3} display={(loginState===States.LOADING || loginState===States.MEMORY_CHECK) ? "flex" : "none"} 
             className={myStyle.root}
@@ -203,6 +233,11 @@ function Login(props) {
             justifyContent="center">
                 <CircularProgress />
         </Box> {/* show circular progress bar when network request is loading*/}
+        <Snackbar open={snackBarOpened} autoHideDuration={6000} onClose={setSnackBarOpened.bind(this, false)}>
+                <Alert onClose={setSnackBarOpened.bind(this, false)} severity={snackBarSeverity}>
+                    {snackBarMessage}
+                </Alert>
+        </Snackbar> {/*showing snackbar for various kinds of errors*/}
         </div>
     );
 }

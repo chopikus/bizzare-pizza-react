@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { Divider, ListItemIcon, Drawer, IconButton, AppBar, Toolbar, Select, MenuItem, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, makeStyles, Grid, Card, Box, CircularProgress, Dialog, DialogActions, DialogContent, useMediaQuery, DialogTitle, DialogContentText, Button, } from "@material-ui/core";
+import { Snackbar, Divider, ListItemIcon, Drawer, IconButton, AppBar, Toolbar, Select, MenuItem, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, makeStyles, Grid, Card, Box, CircularProgress, Dialog, DialogActions, DialogContent, useMediaQuery, DialogTitle, DialogContentText, Button, } from "@material-ui/core";
 import Networker from "./network";
 import { Redirect } from 'react-router';
 import { Link } from "react-router-dom";
@@ -10,12 +10,18 @@ import ShoppingBasketSharpIcon from '@material-ui/icons/ShoppingBasketSharp';
 import InfoIcon from '@material-ui/icons/Info';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const States = {
     LOADING: 1,
     LOADED: 2,
     GO_TO_LOGIN: 3,
     NOT_OPENED: 4,
+    ERROR: 5,
+}
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 const useHeaderStyles = makeStyles((theme) => ({
@@ -106,6 +112,7 @@ function Header(props) {
                             <Typography variant="h6" className={classes.myTitle}>
                                 Bizzare Pizza
                             </Typography>
+                            {list.length>0 && 
                             <Select
                                 labelId="demo-simple-select-placeholder-label-label"
                                 id="demo-simple-select-placeholder-label"
@@ -115,7 +122,7 @@ function Header(props) {
                                 disableUnderline
                             >
                                 {list}
-                            </Select>
+                            </Select> }
                         </div>
                     </Grid>
                     <Grid item xs={0} sm={1} lg={2} />
@@ -173,10 +180,11 @@ function DishInfoDialog(props) {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [loadingInfoState, setLoadingInfoState] = useState(States.LOADING);
-    const [dishDescription, setDishDescription] = useState({});
+    const [dishDescription, setDishDescription] = useState();
     const [ingredientList, setIngredientList] = useState([]);
     const handleClose = (e) => {
         props.setOpened(false);
+        setLoadingInfoState(States.LOADING);
     };
     const dish = props.dish;
 
@@ -190,11 +198,12 @@ function DishInfoDialog(props) {
                 next: (result) => {
                     console.log(result.data);
                     if (result.status.response >= 999) {
-                        ///TODO 
+                        setLoadingInfoState(States.ERROR);
+                        setDishDescription("Произошла ошибка при получении данных о блюде :(");
+                        setIngredientList([]);
                     }
                     else if (result.status.response !== 200) {
                         setLoadingInfoState(States.GO_TO_LOGIN);
-                        ///TODO
                     }
                     else {
                         setDishDescription(result.data.description);
@@ -216,7 +225,7 @@ function DishInfoDialog(props) {
 
     return (
         <div>
-            {props.opened && loadingInfoState === States.LOADING && fetchDishInfo()}
+            {props.opened && (loadingInfoState === States.LOADING) && fetchDishInfo()}
             {loadingInfoState === States.GO_TO_LOGIN && <Redirect to="/login" />}
             <Dialog
                 fullScreen={fullScreen}
@@ -238,7 +247,7 @@ function DishInfoDialog(props) {
                             <CircularProgress />
                         </Box>
                     </DialogContentText>
-                    {props.opened && loadingInfoState === States.LOADED &&
+                    {props.opened && (loadingInfoState === States.LOADED || loadingInfoState===States.ERROR) &&
                         <div>
                             <Typography variant="body1">
                                 {dishDescription}
@@ -273,7 +282,7 @@ function MenuElement(props) {
                 <Typography variant="h5" className={classes.title}>{dish.name}</Typography>
                 <Typography variant="body1" className={classes.subtitle}>{dish.price} грн/{dish.amount} {dish.measurement_unit}</Typography>
             </div>
-            <DishInfoDialog opened={openedDialog} setOpened={setOpenedDialog} dish={dish} />
+            <DishInfoDialog opened={openedDialog} setOpened={setOpenedDialog} dish={dish}/>
         </Card>
     );
 }
@@ -308,11 +317,12 @@ function Menu() {
             .subscribe({
                 next: (result) => {
                     if (result.status.response >= 999) {
-                        ///TODO 
+                        setSnackBarMessage("Произошла ошибка при загрузке меню :( Попробуйте перезагрузить страницу.");
+                        setSnackBarSeverity("error");
+                        setSnackBarOpened(true);
                     }
                     else if (result.status.response !== 200) {
                         setLoadingState(States.GO_TO_LOGIN);
-                        ///TODO
                     }
                     else {
                         const data = result.data;
@@ -326,6 +336,9 @@ function Menu() {
     }
 
     const [loadingState, setLoadingState] = useState(States.LOADING);
+    const [snackBarOpened, setSnackBarOpened] = useState(false);
+    const [snackBarSeverity, setSnackBarSeverity] = useState();
+    const [snackBarMessage, setSnackBarMessage] = useState();
     const [menu, setMenu] = useState([]);
     const [categoriesList, setCategoriesList] = useState([]);
     const [favCategory, setFavCategory] = useState(0);
@@ -367,6 +380,11 @@ function Menu() {
                 justifyContent="center">
                 <CircularProgress />
             </Box> {/* show circular progress bar when network request is loading*/}
+            <Snackbar open={snackBarOpened} autoHideDuration={6000} onClose={setSnackBarOpened.bind(this, false)}>
+                <Alert onClose={setSnackBarOpened.bind(this, false)} severity={snackBarSeverity}>
+                    {snackBarMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 }

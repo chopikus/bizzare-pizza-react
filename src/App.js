@@ -6,6 +6,7 @@ import {
 import React from "react";
 import Login from "./login";
 import Menu from "./menu";
+import UserInfo from "./userInfo";
 import { CssBaseline } from "@material-ui/core";
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 
@@ -14,9 +15,9 @@ const theme = createTheme({
     primary: {
       main: '#008577',
     },
-    /*secondary: {
-      main: green[500],
-    },*/
+    secondary: {
+      main: '#ffffff',
+    },
   },
 });
 
@@ -29,8 +30,11 @@ function App() {
           <Route path="/login">
             <Login />
           </Route>
-          <Route path="/menu">
+          <Route path="(/menu|/)/">
             <Menu />
+          </Route>
+          <Route path="/userinfo">
+            <UserInfo />
           </Route>
         </Switch>
       </Router>

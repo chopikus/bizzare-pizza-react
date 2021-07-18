@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 import { fromFetch } from 'rxjs/fetch';
-import { switchMap, catchError, finalize } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators';
 
 const API_DOMAIN = "192.168.31.41";
 

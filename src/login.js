@@ -55,7 +55,7 @@ function Login(props) {
     {
         if (loginState===States.WELCOME)
             return "Для продолжения введите номер телефона.";
-        if (loginState===States.ENTER_CODE_WITH_NAME || loginState==States.ENTER_CODE)
+        if (loginState===States.ENTER_CODE_WITH_NAME || loginState===States.ENTER_CODE)
             return "Для подтверждения введите код, присланный Вам по SMS."
         return "";
     }
@@ -64,7 +64,7 @@ function Login(props) {
     {
         if (loginState===States.WELCOME)
             return "Bizzare Pizza";
-        if (loginState===States.ENTER_CODE_WITH_NAME || loginState==States.ENTER_CODE)
+        if (loginState===States.ENTER_CODE_WITH_NAME || loginState===States.ENTER_CODE)
             return "Подтверждение"
         return "";
     }

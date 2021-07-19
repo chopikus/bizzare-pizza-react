@@ -1,5 +1,5 @@
-import {React, useState, Fragment } from "react";
-import { Snackbar, Divider, ListItemIcon, Drawer, IconButton, AppBar, Toolbar, Select, MenuItem, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, makeStyles, Grid, Card, Box, CircularProgress, Dialog, DialogActions, DialogContent, useMediaQuery, DialogTitle, DialogContentText, Button, } from "@material-ui/core";
+import { React, useState, Fragment } from "react";
+import { Tooltip, Snackbar, Divider, ListItemIcon, Drawer, IconButton, AppBar, Toolbar, Select, MenuItem, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, makeStyles, Grid, Card, Box, CircularProgress, Dialog, DialogActions, DialogContent, useMediaQuery, DialogTitle, DialogContentText, Button, } from "@material-ui/core";
 import Networker from "./network";
 import { Redirect } from 'react-router';
 import { Link } from "react-router-dom";
@@ -60,10 +60,10 @@ function MyMenuDrawer(props) {
         <Drawer open={props.opened} onClose={props.setOpened.bind(this, false)}>
             <List className={classes.list}>
                 <Typography variant="h6" className={classes.bizzare} align="center" color='textSecondary'>
-                                Bizzare Pizza
+                    Bizzare Pizza
                 </Typography>
                 <Divider />
-                <ListItem button key="Корзина">
+                <ListItem button key="Корзина" component={Link} to={"/basket"}>
                     <ListItemIcon><ShoppingBasketSharpIcon /></ListItemIcon>
                     <ListItemText primary="Корзина" />
                 </ListItem>
@@ -106,23 +106,25 @@ function Header(props) {
                     <Grid item xs={0} sm={1} lg={2} />
                     <Grid item xs={12} sm={10} lg={8}>
                         <div className={classes.div}>
-                            <IconButton color="secondary" className={classes.button}>
-                                <MenuIcon onClick={setDrawerOpened.bind(this, true)} />
-                            </IconButton>
+                            <Tooltip title="Дополнительно">
+                                <IconButton color="secondary" className={classes.button}>
+                                    <MenuIcon onClick={setDrawerOpened.bind(this, true)} />
+                                </IconButton>
+                            </Tooltip>
                             <Typography variant="h6" className={classes.myTitle}>
                                 Bizzare Pizza
                             </Typography>
-                            {list.length>0 && 
-                            <Select
-                                labelId="demo-simple-select-placeholder-label-label"
-                                id="demo-simple-select-placeholder-label"
-                                className={classes.mySelect}
-                                value={props.favCategory}
-                                onChange={selectCategory}
-                                disableUnderline
-                            >
-                                {list}
-                            </Select> }
+                            {list.length > 0 &&
+                                <Select
+                                    labelId="demo-simple-select-placeholder-label-label"
+                                    id="demo-simple-select-placeholder-label"
+                                    className={classes.mySelect}
+                                    value={props.favCategory}
+                                    onChange={selectCategory}
+                                    disableUnderline
+                                >
+                                    {list}
+                                </Select>}
                         </div>
                     </Grid>
                     <Grid item xs={0} sm={1} lg={2} />
@@ -189,13 +191,24 @@ function DishInfoDialog(props) {
     };
 
     const addToBasket = (e) => {
-        if (localStorage.getItem("basket")===null)
-            localStorage['basket'] = "{}";
-        var basket = new Map(JSON.parse(localStorage['basket']));
-        if (!basket.has(dish))
-            basket[dish] = 1;
-        else
-            basket[dish]++;
+        if (localStorage.getItem("basket") === null)
+            localStorage['basket'] = "[]";
+        let basket = new Map(JSON.parse(localStorage['basket']));
+        const dishString = JSON.stringify(dish);
+        if (!basket.has(dishString))
+            basket.set(dishString, 1);
+        else if (basket.get(dishString) < 8)
+            basket.set(dishString, basket.get(dishString) + 1);
+        else {
+            props.setSnackBarMessage("Ошибка: слишком большой заказ!");
+            props.setSnackBarSeverity("error");
+            props.setSnackBarOpened(true);
+            return;
+        }
+        localStorage['basket'] = JSON.stringify([...basket]);
+        props.setSnackBarMessage("Успешно добавлено в корзину: " + dish.name);
+        props.setSnackBarSeverity("success");
+        props.setSnackBarOpened(true);
         handleClose(e);
     };
 
@@ -258,7 +271,7 @@ function DishInfoDialog(props) {
                             <CircularProgress />
                         </Box>
                     </DialogContentText>
-                    {props.opened && (loadingInfoState === States.LOADED || loadingInfoState===States.ERROR) &&
+                    {props.opened && (loadingInfoState === States.LOADED || loadingInfoState === States.ERROR) &&
                         <div>
                             <Typography variant="body1">
                                 {dishDescription}
@@ -293,17 +306,23 @@ function MenuElement(props) {
                 <Typography variant="h5" className={classes.title}>{dish.name}</Typography>
                 <Typography variant="body1" className={classes.subtitle}>{dish.price} грн/{dish.amount} {dish.measurement_unit}</Typography>
             </div>
-            <DishInfoDialog opened={openedDialog} setOpened={setOpenedDialog} dish={dish}/>
+            <DishInfoDialog opened={openedDialog} setOpened={setOpenedDialog} dish={dish}
+                setSnackBarMessage={props.setSnackBarMessage}
+                setSnackBarOpened={props.setSnackBarOpened}
+                setSnackBarSeverity={props.setSnackBarSeverity} />
         </Card>
     );
 }
 
-function processMenuQuery(dishes, favCategory, categories) {
+function processMenuQuery(dishes, favCategory, categories, setSnackBarMessage, setSnackBarOpened, setSnackBarSeverity) {
     let finalResult = []
     for (let dish of dishes) {
         if (favCategory === 0 || dish.category_name === categories[favCategory])
             finalResult.push(<Grid item xs={12} sm={6} md={4} style={{ padding: "15px" }}>
-                <MenuElement dish={dish} />
+                <MenuElement dish={dish}
+                    setSnackBarMessage={setSnackBarMessage}
+                    setSnackBarOpened={setSnackBarOpened}
+                    setSnackBarSeverity={setSnackBarSeverity} />
             </Grid>);
     }
     return finalResult;
@@ -377,12 +396,12 @@ function Menu() {
                         sm={10}
                         lg={8}
                     >
-                        {processMenuQuery(menu, favCategory, categoriesList)} {/* it's actually menu's data!*/}
+                        {processMenuQuery(menu, favCategory, categoriesList, setSnackBarMessage, setSnackBarOpened, setSnackBarSeverity)} {/* it's actually menu's data!*/}
                     </Grid>
                     <Grid item xs={0} sm={1} lg={2} />
                 </Grid>
             </Grid>
-            <Box mt={3} display={(loadingState === States.LOADING || loadingState===States.ERROR) ? "flex" : "none"}
+            <Box mt={3} display={(loadingState === States.LOADING || loadingState === States.ERROR) ? "flex" : "none"}
                 style={{
                     height: 'calc(100vh - 100px)',
                     width: '100%',

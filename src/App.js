@@ -6,6 +6,7 @@ import {
 import React from "react";
 import Login from "./login";
 import Menu from "./menu";
+import Basket from "./basket";
 import UserInfo from "./userInfo";
 import { CssBaseline } from "@material-ui/core";
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
@@ -35,6 +36,9 @@ function App() {
           </Route>
           <Route path="/userinfo">
             <UserInfo />
+          </Route>
+          <Route path="/basket">
+            <Basket />
           </Route>
         </Switch>
       </Router>

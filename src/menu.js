@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import {React, useState, Fragment } from "react";
 import { Snackbar, Divider, ListItemIcon, Drawer, IconButton, AppBar, Toolbar, Select, MenuItem, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, makeStyles, Grid, Card, Box, CircularProgress, Dialog, DialogActions, DialogContent, useMediaQuery, DialogTitle, DialogContentText, Button, } from "@material-ui/core";
 import Networker from "./network";
 import { Redirect } from 'react-router';
@@ -182,11 +182,22 @@ function DishInfoDialog(props) {
     const [loadingInfoState, setLoadingInfoState] = useState(States.LOADING);
     const [dishDescription, setDishDescription] = useState();
     const [ingredientList, setIngredientList] = useState([]);
+    const dish = props.dish;
     const handleClose = (e) => {
         props.setOpened(false);
         setLoadingInfoState(States.LOADING);
     };
-    const dish = props.dish;
+
+    const addToBasket = (e) => {
+        if (localStorage.getItem("basket")===null)
+            localStorage['basket'] = "{}";
+        var basket = new Map(JSON.parse(localStorage['basket']));
+        if (!basket.has(dish))
+            basket[dish] = 1;
+        else
+            basket[dish]++;
+        handleClose(e);
+    };
 
     function fetchDishInfo() {
         Networker.makeRequest("/cli/dish/info", {
@@ -258,7 +269,7 @@ function DishInfoDialog(props) {
                         </div>}
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus onClick={handleClose} color="primary">
+                    <Button autoFocus onClick={addToBasket} color="primary">
                         Добавить в корзину
                     </Button>
                     <Button onClick={handleClose} color="primary" autoFocus>
@@ -320,6 +331,7 @@ function Menu() {
                         setSnackBarMessage("Произошла ошибка при загрузке меню :( Попробуйте перезагрузить страницу.");
                         setSnackBarSeverity("error");
                         setSnackBarOpened(true);
+                        setLoadingState(States.ERROR);
                     }
                     else if (result.status.response !== 200) {
                         setLoadingState(States.GO_TO_LOGIN);
@@ -370,7 +382,7 @@ function Menu() {
                     <Grid item xs={0} sm={1} lg={2} />
                 </Grid>
             </Grid>
-            <Box mt={3} display={(loadingState === States.LOADING) ? "flex" : "none"}
+            <Box mt={3} display={(loadingState === States.LOADING || loadingState===States.ERROR) ? "flex" : "none"}
                 style={{
                     height: 'calc(100vh - 100px)',
                     width: '100%',

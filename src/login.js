@@ -15,6 +15,7 @@ const States = {
     ENTER_CODE_WITH_NAME: 4,
     MEMORY_CHECK: 5,
     ACCESS_GRANTED: 6,
+    ERROR: 7,
 };
 
 const REQUEST_ERROR_MESSAGE = "Не удалось отправить запрос. Попробуйте ещё раз!";
@@ -90,7 +91,7 @@ function Login(props) {
             .subscribe({
                 next: (result) => {
                     if (result.status.response >= 999){
-                        setLoginState(States.LOADING);
+                        setLoginState(States.ERROR);
                         setSnackBarMessage(NETWORK_ERROR);
                         setSnackBarSeverity("error");
                         setSnackBarOpened(true);

@@ -103,7 +103,8 @@ function CheckoutDialog(props) {
                         props.setSnackBarMessage(SUCCESS_MAKING_ORDER);
                         props.setSnackBarSeverity("success");
                         props.setSnackBarOpened(true);
-                        setLoadingState(States.LOADED);
+                        clearBasket();
+                        props.setOpened(false);
                     }
                     else {
                         props.setSnackBarMessage("Произошла ошибка при отправке заказа. Перенаправление на страницу входа...");
@@ -138,7 +139,6 @@ function CheckoutDialog(props) {
                 aria-labelledby="responsive-dialog-title"
             >
                 {(loadingState === States.LOADING) && sendRequest()}
-                {(loadingState === States.LOADED) && clearBasket()}
                 {loadingState === States.GO_TO_LOGIN && <Redirect to="/login" />}
                 <DialogTitle id="responsive-dialog-title">Оформление заказа</DialogTitle>
                 <DialogContent>

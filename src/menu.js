@@ -67,7 +67,7 @@ function MyMenuDrawer(props) {
                     <ListItemIcon><ShoppingBasketSharpIcon /></ListItemIcon>
                     <ListItemText primary="Корзина" />
                 </ListItem>
-                <ListItem button key="Список заказов">
+                <ListItem button key="Список заказов" component={Link} to={"/orderlist"}>
                     <ListItemIcon><ListAltIcon /></ListItemIcon>
                     <ListItemText primary="Список заказов" />
                 </ListItem>

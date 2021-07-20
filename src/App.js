@@ -8,9 +8,9 @@ import Login from "./login";
 import Menu from "./menu";
 import Basket from "./basket";
 import UserInfo from "./userInfo";
+import OrderList from "./orderlist";
 import { CssBaseline } from "@material-ui/core";
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
-
 const theme = createTheme({
   palette: {
     primary: {
@@ -39,6 +39,9 @@ function App() {
           </Route>
           <Route path="/basket">
             <Basket />
+          </Route>
+          <Route path="/orderlist">
+            <OrderList />
           </Route>
         </Switch>
       </Router>

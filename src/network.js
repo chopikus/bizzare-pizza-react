@@ -2,7 +2,7 @@ import { of } from 'rxjs';
 import { fromFetch } from 'rxjs/fetch';
 import { switchMap, catchError } from 'rxjs/operators';
 
-const API_DOMAIN = "192.168.31.41";
+const API_DOMAIN = "109.87.140.221:5000";
 
 class Networker {
     static makeRequest(query, data, saveSecret)
@@ -25,7 +25,7 @@ class Networker {
                 var json = response.json();
                 json.then((resp)=>{
                     if (resp.data && resp.data.secret)
-                        localStorage['secret'] = resp.data.secret; 
+                        localStorage.setItem('secret', resp.data.secret); 
                 });
                 return json;
               } else {

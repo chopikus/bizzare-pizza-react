@@ -49,8 +49,8 @@ function UserInfo() {
 
     function fetchUserInfo() {
         Networker.makeRequest("/cli/info/get", {
-            "phone": localStorage['phoneNumber'],
-            "secret": localStorage['secret'],
+            "phone": localStorage.getItem('phoneNumber'),
+            "secret": localStorage.getItem('secret'),
         })
             .subscribe({
                 next: (result) => {
@@ -78,8 +78,8 @@ function UserInfo() {
         const email = document.getElementById("email").value;
         setRequestState(States.LOADING);
         Networker.makeRequest("/cli/info/update", {
-            "phone": localStorage['phoneNumber'],
-            "secret": localStorage['secret'],
+            "phone": localStorage.getItem('phoneNumber'),
+            "secret": localStorage.getItem('secret'),
             "name": name,
             "email": email 
         })
@@ -135,7 +135,7 @@ function UserInfo() {
                 </Grid>
                 {loadingState === States.LOADED && <Grid item>
                     <div className={classes.main}>
-                        <TextField label={localStorage['phoneNumber']} color="primary" disabled />
+                        <TextField label={localStorage.getItem('phoneNumber')} color="primary" disabled />
                         <TextField label={"секрет: "+info.secret} color="primary" disabled/>
                         <TextField id="name" label="Имя" color="primary" defaultValue={info.name}/>
                         <TextField id="email" label="Электропочта" color="primary" defaultValue={info.email}/>

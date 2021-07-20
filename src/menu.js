@@ -192,8 +192,8 @@ function DishInfoDialog(props) {
 
     const addToBasket = (e) => {
         if (localStorage.getItem("basket") === null)
-            localStorage['basket'] = "[]";
-        let basket = new Map(JSON.parse(localStorage['basket']));
+            localStorage.setItem('basket', "[]");
+        let basket = new Map(JSON.parse(localStorage.getItem('basket')));
         const dishString = JSON.stringify(dish);
         if (!basket.has(dishString))
             basket.set(dishString, 1);
@@ -205,7 +205,7 @@ function DishInfoDialog(props) {
             props.setSnackBarOpened(true);
             return;
         }
-        localStorage['basket'] = JSON.stringify([...basket]);
+        localStorage.setItem('basket', JSON.stringify([...basket]));
         props.setSnackBarMessage("Успешно добавлено в корзину: " + dish.name);
         props.setSnackBarSeverity("success");
         props.setSnackBarOpened(true);
@@ -214,8 +214,8 @@ function DishInfoDialog(props) {
 
     function fetchDishInfo() {
         Networker.makeRequest("/cli/dish/info", {
-            "phone": localStorage['phoneNumber'],
-            "secret": localStorage['secret'],
+            "phone": localStorage.getItem('phoneNumber'),
+            "secret": localStorage.getItem('secret'),
             "data": JSON.stringify({ "id": dish.id }),
         })
             .subscribe({
@@ -341,8 +341,8 @@ function getCategoriesList(dishes) {
 function Menu() {
     function fetchMenu() {
         Networker.makeRequest("/cli/dish/list", {
-            "phone": localStorage['phoneNumber'],
-            "secret": localStorage['secret']
+            "phone": localStorage.getItem('phoneNumber'),
+            "secret": localStorage.getItem('secret')
         })
             .subscribe({
                 next: (result) => {

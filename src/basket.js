@@ -225,7 +225,13 @@ function MenuElement(props) {
 
 function Basket() {
 
-    const [basketMapString, setBasketMapString] = useState(localStorage['basket']);
+    function getBasket()
+    {
+        if (localStorage.getItem("basket") === null)
+            localStorage.setItem('basket', "[]");
+        return localStorage.getItem("basket");
+    }
+    const [basketMapString, setBasketMapString] = useState(getBasket());
 
     function updateBasketMap(who, val) {
         let mp = new Map(JSON.parse(basketMapString));

@@ -50,8 +50,8 @@ function OrderList() {
     function fetchOrderList() {
         ///TODO other types of orders, currently not supported
         Networker.makeRequest("/cli/maybeorder/list", {
-            "phone": localStorage['phoneNumber'],
-            "secret": localStorage['secret'],
+            "phone": localStorage.getItem('phoneNumber'),
+            "secret": localStorage.getItem('secret'),
         })
             .subscribe({
                 next: (result) => {
